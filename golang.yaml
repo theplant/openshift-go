@@ -33,7 +33,7 @@ objects:
     name: ${NAME}
   spec:
     ports:
-    - name: web
+    - name: app
       port: 4000
       targetPort: 4000
     selector:
@@ -52,21 +52,19 @@ objects:
   metadata:
     annotations:
       description: Keeps track of changes in the application image
-    name: ${NAME}
+    name: ${NAME}-build
 - apiVersion: v1
   kind: BuildConfig
   metadata:
     annotations:
       description: Defines how to build the application
       template.alpha.openshift.io/wait-for-ready: "true"
-    name: ${NAME}
+    name: ${NAME}-build
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: ${NAME}:latest
-    postCommit:
-      script: go test -v ./...
+        name: ${NAME}-build:latest
     source:
       contextDir: ${CONTEXT_DIR}
       git:
@@ -76,13 +74,52 @@ objects:
     strategy:
       dockerStrategy:
         dockerfilePath: ${DOCKERFILE_PATH}
-      type: Source
+        pullSecret:
+          name: theplant-registry
     triggers:
     - type: ImageChange
     - type: ConfigChange
     - github:
         secret: ${GITHUB_WEBHOOK_SECRET}
       type: GitHub
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes in the application image
+    name: ${NAME}
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Defines how to build the application to a docker image
+      template.alpha.openshift.io/wait-for-ready: "true"
+    name: ${NAME}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${NAME}:latest
+    source:
+      images:
+      - from:
+          kind: ImageStreamTag
+          name: ${NAME}-build:latest
+        paths:
+        - sourcePath: /app
+          destinationDir: "."
+      dockerfile: |-
+        FROM alpine
+        COPY ./app /
+        CMD ["/app/app"]
+    strategy:
+      dockerStrategy:
+        from:
+          kind: DockerImage
+          name: scratch
+      type: Docker
+    triggers:
+    - type: ImageChange
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -105,7 +142,7 @@ objects:
         - image: ' '
           envFrom:
             - configMapRef:
-                name: cm-aigle
+                name: cm-${NAME}
           readinessProbe:
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -144,12 +181,12 @@ parameters:
   displayName: Dockerfile Path
   name: DOCKERFILE_PATH
   required: true
-  value: go-app
+  value: app1/Dockerfile
 - description: The OpenShift Namespace where the ImageStream resides.
   displayName: Namespace
   name: NAMESPACE
   required: true
-  value: openshift
+  value: hello
 - description: Maximum amount of memory the Rails container can use.
   displayName: Memory Limit
   name: MEMORY_LIMIT
@@ -172,9 +209,4 @@ parameters:
     blank a value will be defaulted.
   displayName: Application Hostname
   name: APPLICATION_DOMAIN
-- description: Github trigger secret.  A difficult to guess string encoded as part
-    of the webhook URL.  Not encrypted.
-  displayName: GitHub Webhook Secret
-  from: '[a-zA-Z0-9]{40}'
-  generate: expression
-  name: GITHUB_WEBHOOK_SECRET
+
