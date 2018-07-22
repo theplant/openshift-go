@@ -52,19 +52,19 @@ objects:
   metadata:
     annotations:
       description: Keeps track of changes in the application image
-    name: ${NAME}-build
+    name: ${NAME}-compile
 - apiVersion: v1
   kind: BuildConfig
   metadata:
     annotations:
       description: Defines how to build the application
       template.alpha.openshift.io/wait-for-ready: "true"
-    name: ${NAME}-build
+    name: ${NAME}-compile
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: ${NAME}-build:latest
+        name: ${NAME}-compile:latest
     source:
       contextDir: ${CONTEXT_DIR}
       git:
@@ -104,22 +104,26 @@ objects:
       images:
       - from:
           kind: ImageStreamTag
-          name: ${NAME}-build:latest
+          name: ${NAME}-compile:latest
         paths:
         - sourcePath: /app
-          destinationDir: "."
+          destinationDir: "./app"
       dockerfile: |-
         FROM alpine
-        COPY ./app /
+        ADD ./app /
         CMD ["/app/app"]
     strategy:
       dockerStrategy:
         from:
           kind: DockerImage
-          name: scratch
+          name: alpine
       type: Docker
     triggers:
     - type: ImageChange
+      imageChange:
+        from:
+          kind: ImageStreamTag
+          name: ${NAME}-compile:latest
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -130,12 +134,11 @@ objects:
   spec:
     replicas: 1
     selector:
-      name: ${NAME}
-      type: Recreate
+      myapp: ${NAME}
     template:
       metadata:
         labels:
-          name: ${NAME}
+          myapp: ${NAME}
         name: ${NAME}
       spec:
         containers:
