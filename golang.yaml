@@ -179,7 +179,7 @@ parameters:
   displayName: Name
   name: NAME
   required: true
-  value: go-app
+  value: goapp
 - description: The Dockerfile path to build the image.
   displayName: Dockerfile Path
   name: DOCKERFILE_PATH
