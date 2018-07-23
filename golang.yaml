@@ -1,8 +1,8 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 labels:
-  app: golang
-  template: golang
+  app: go
+  template: go
 message: |-
   The following service(s) have been created in your project: ${NAME}
 
@@ -22,7 +22,7 @@ metadata:
     openshift.io/support-url: https://theplant.jp
     tags: quickstart,go
     template.openshift.io/bindable: "false"
-  name: golang
+  name: go
   namespace: openshift
 objects:
 - apiVersion: v1
