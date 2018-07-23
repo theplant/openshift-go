@@ -66,7 +66,6 @@ objects:
         kind: ImageStreamTag
         name: ${NAME}-compile:latest
     source:
-      contextDir: ${CONTEXT_DIR}
       git:
         ref: ${SOURCE_REPOSITORY_REF}
         uri: ${SOURCE_REPOSITORY_URL}
@@ -185,16 +184,6 @@ parameters:
   name: DOCKERFILE_PATH
   required: true
   value: app1/Dockerfile
-- description: The OpenShift Namespace where the ImageStream resides.
-  displayName: Namespace
-  name: NAMESPACE
-  required: true
-  value: hello
-- description: Maximum amount of memory the Rails container can use.
-  displayName: Memory Limit
-  name: MEMORY_LIMIT
-  required: true
-  value: 512Mi
 - description: The URL of the repository with your application source code.
   displayName: Git Repository URL
   name: SOURCE_REPOSITORY_URL
@@ -204,12 +193,12 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-- description: Set this to the relative path to your project if it is not in the root
-    of your repository.
-  displayName: Context Directory
-  name: CONTEXT_DIR
 - description: The exposed hostname that will route to the Rails service, if left
     blank a value will be defaulted.
   displayName: Application Hostname
   name: APPLICATION_DOMAIN
-
+- description: Maximum amount of memory the Rails container can use.
+  displayName: Memory Limit
+  name: MEMORY_LIMIT
+  required: true
+  value: 512Mi
