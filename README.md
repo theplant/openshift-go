@@ -14,7 +14,7 @@ It should looks like this:
 ## Create Docker Registry Secret
 
 ```bash
-$ oc create secret docker-registry my-docker-registry --docker-server=<server> --docker-username=<username> --docker-password=<password> --docker-email=<email>
+$ oc create secret docker-registry my-docker-registry --docker-server=registry.theplant-dev.com --docker-username=sunfmin --docker-email=sunfmin@gmail.com --docker-password=<password>
 ```
 
 ## Create Source Clone Secret
@@ -47,19 +47,16 @@ Click the Go icon that created by us before, you will see:
 And fill in the secrets and config maps created above. then you will be able to deploy your first app
 
 
-## How you should write your Build.Dockerfile
+## Three Stage Build: Dep, Build, Runtime
 
-For OpenShift be able to build your Go app correctly, You have to provide a Build.Dockerfile in your source repository. See [Build.Dockerfile](./app1/Build.Dockerfile) for example.
-
-And for many type of apps, I think manage a dependency container image is a good idea to increase the speed of your build time. Because you manually build the dependency image and push it to registry, and OpenShift will cache that image in it's docker and reused them every time without have to fetch dependencies. See [Dep.Dockerfile](./app1/Dep.Dockerfile) for example
-
-## Two Stage Build
+And for many type of apps, I think manage a dependency container image is a good idea to increase the speed of your build time. Developers manually build the dependency image and push it to a registry, and Docker will cache that image in it's docker and reuse them every time without have to fetch dependencies. See [Dep.Dockerfile](./app1/Dep.Dockerfile) for example
 
 This OpenShift template contains two BuildConfig
 
-First stage called `{name}-compile` which will git clone your source code, and run your `Build.Dockerfile` to build the binary and other assets that you want include in `/app/` folder.
+Build stage called `{name}-compile` BuildConfig which will git clone your source code, and run your `Build.Dockerfile` to build the binary and other assets that you want include in `/app/` folder. Also must copy runtime stage `Dockerfile` to path `/Dockerfile` for runtime docker image to be built.
 
-Second stage use a very small base image like alpine and the files in `/app/` to create a minimum image, It will execute `/app/entry` as docker cmd.
+Runtime stage use the `/Dockerfile` to build a very small base image like alpine and the files in `/app/` to it, It will normally will execute `/app/entry` as docker cmd which was written by developer inside `/Dockerfile`.
+
 
 ## Trigger OpenShift to build and deploy after tests on CI passed
 
