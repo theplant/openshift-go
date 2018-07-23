@@ -115,7 +115,7 @@ objects:
       dockerfile: |-
         FROM alpine
         ADD ./app /
-        CMD ["/app/app"]
+        CMD ["/app/entry"]
     strategy:
       dockerStrategy:
         from:
@@ -184,8 +184,21 @@ parameters:
   name: NAME
   required: true
   value: goapp
-- description: The Dockerfile path to build the image.
-  displayName: Dockerfile Path
+- description: The URL of the repository with your application source code.
+  displayName: Git Repository URL
+  name: SOURCE_REPOSITORY_URL
+  required: true
+  value: git@github.com:theplant/openshift-go.git
+- description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch.
+  displayName: Git Reference
+  name: SOURCE_REPOSITORY_REF
+- description: Set this secret to clone your source code, Read Create Source Clone Secret section in doc.
+  displayName: Source Clone Secret Name
+  name: SOURCE_CLONE_SECRET
+  value: my-github-clone-secret
+- description: The Dockerfile path relative to your repository root to build the image.
+  displayName: Dockerfile Path in repository
   name: DOCKERFILE_PATH
   required: true
   value: app1/Build.Dockerfile
@@ -199,19 +212,6 @@ parameters:
   name: APP_ENV_CONFIG_MAP_NAME
   required: true
   value: cm-goapp
-- description: The URL of the repository with your application source code.
-  displayName: Git Repository URL
-  name: SOURCE_REPOSITORY_URL
-  required: true
-  value: https://github.com/theplant/openshift-go.git
-- description: Set this to a branch name, tag or other ref of your repository if you
-    are not using the default branch.
-  displayName: Git Reference
-  name: SOURCE_REPOSITORY_REF
-- description: Set this secret to clone your source code, Read Create Source Clone Secret section in doc.
-  displayName: Source Clone Secret Name
-  name: SOURCE_CLONE_SECRET
-  value: my-github-clone-secret
 - description: The exposed hostname that will route to the Rails service, if left
     blank a value will be defaulted.
   displayName: Application Hostname
