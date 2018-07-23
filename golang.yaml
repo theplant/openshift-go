@@ -79,8 +79,11 @@ objects:
     - type: ImageChange
     - type: ConfigChange
     - github:
-        secret: ${GITHUB_WEBHOOK_SECRET}
+        secret: ${WEBHOOK_SECRET}
       type: GitHub
+    - generic:
+        secret: ${WEBHOOK_SECRET}
+      type: Generic
 - apiVersion: v1
   kind: ImageStream
   metadata:
@@ -202,3 +205,8 @@ parameters:
   name: MEMORY_LIMIT
   required: true
   value: 512Mi
+- description: Github and Generic trigger secret.  A difficult to guess string encoded as part of the webhook URL. Not encrypted.
+  displayName: Webhook Secret
+  from: '[a-zA-Z0-9]{20}'
+  generate: expression
+  name: WEBHOOK_SECRET
