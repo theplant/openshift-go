@@ -111,8 +111,8 @@ objects:
           name: ${NAME}-compile:latest
         paths:
         - sourcePath: /app
-          destinationDir: "./app"
-        - sourcePath: ${RUN_DOCKERFILE_PATH}
+          destinationDir: ./app
+        - sourcePath: /Dockerfile
           destinationDir: "./"
     strategy:
       dockerStrategy:
@@ -199,11 +199,6 @@ parameters:
   name: BUILD_DOCKERFILE_PATH
   required: true
   value: app1/Build.Dockerfile
-- description: The Dockerfile path relative to your repository root to the run the image.
-  displayName: Run Dockerfile Path in repository
-  name: RUN_DOCKERFILE_PATH
-  required: true
-  value: /go/src/github.com/theplant/openshift-go/app1/Dockerfile
 - description: The Docker Registry Pull Secret. Read Create Docker Registry Secret section in doc.
   displayName: Docker Registry Pull Secret
   name: REGISTRY_PULL_SECRET
