@@ -134,11 +134,11 @@ objects:
   spec:
     replicas: 1
     selector:
-      myapp: ${NAME}
+      name: ${NAME}
     template:
       metadata:
         labels:
-          myapp: ${NAME}
+          name: ${NAME}
         name: ${NAME}
       spec:
         containers:
