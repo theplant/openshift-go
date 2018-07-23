@@ -112,12 +112,8 @@ objects:
         paths:
         - sourcePath: /app
           destinationDir: "./app"
-        - sourcePath: ./${RUN_DOCKERFILE_PATH}
-          destinationDir: "./Dockerfile"
-      dockerfile: |-
-        FROM alpine
-        ADD ./app /
-        CMD ["/app/entry"]
+        - sourcePath: ${RUN_DOCKERFILE_PATH}
+          destinationDir: "./"
     strategy:
       dockerStrategy:
         dockerfilePath: "./Dockerfile"
@@ -207,7 +203,7 @@ parameters:
   displayName: Run Dockerfile Path in repository
   name: RUN_DOCKERFILE_PATH
   required: true
-  value: app1/Dockerfile
+  value: /go/src/github.com/theplant/openshift-go/app1/Dockerfile
 - description: The Docker Registry Pull Secret. Read Create Docker Registry Secret section in doc.
   displayName: Docker Registry Pull Secret
   name: REGISTRY_PULL_SECRET
