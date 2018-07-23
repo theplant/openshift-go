@@ -74,7 +74,7 @@ objects:
       type: Git
     strategy:
       dockerStrategy:
-        dockerfilePath: ${DOCKERFILE_PATH}
+        dockerfilePath: ${BUILD_DOCKERFILE_PATH}
         pullSecret:
           name: ${REGISTRY_PULL_SECRET}
     triggers:
@@ -112,16 +112,17 @@ objects:
         paths:
         - sourcePath: /app
           destinationDir: "./app"
+        - sourcePath: ./${RUN_DOCKERFILE_PATH}
+          destinationDir: "./Dockerfile"
       dockerfile: |-
         FROM alpine
         ADD ./app /
         CMD ["/app/entry"]
     strategy:
       dockerStrategy:
-        from:
-          kind: DockerImage
-          name: alpine
-      type: Docker
+        dockerfilePath: "./Dockerfile"
+        pullSecret:
+          name: ${REGISTRY_PULL_SECRET}
     triggers:
     - type: ImageChange
       imageChange:
@@ -197,11 +198,16 @@ parameters:
   displayName: Source Clone Secret Name
   name: SOURCE_CLONE_SECRET
   value: my-github-clone-secret
-- description: The Dockerfile path relative to your repository root to build the image.
-  displayName: Dockerfile Path in repository
-  name: DOCKERFILE_PATH
+- description: The Dockerfile path relative to your repository root to the compile image.
+  displayName: Build Dockerfile Path in repository
+  name: BUILD_DOCKERFILE_PATH
   required: true
   value: app1/Build.Dockerfile
+- description: The Dockerfile path relative to your repository root to the run the image.
+  displayName: Run Dockerfile Path in repository
+  name: RUN_DOCKERFILE_PATH
+  required: true
+  value: app1/Dockerfile
 - description: The Docker Registry Pull Secret. Read Create Docker Registry Secret section in doc.
   displayName: Docker Registry Pull Secret
   name: REGISTRY_PULL_SECRET
