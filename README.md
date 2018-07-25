@@ -69,3 +69,28 @@ Copy that value, and put this curl to call it into your Semaphore CI build after
 ```bash
 curl -k -X POST -H "Content-Type: application/json" https://192.168.99.100:8443/oapi/v1/namespaces/myproject/buildconfigs/goapp-hello-compile/webhooks/fluuRF2rFY5RcIBeipj3/generic
 ```
+
+## Workflows
+
+### Development Workflow
+
+- Developer create github repository with Build.Dockerfile and Dockerfile
+- Developer create Semaphore CI test environment to run CI, Without Building Docker image
+- Developer create new app in OpenShift use OpenShift Web Console
+- SA create stateful resources like RDS, Redis, Elasticsearch etc, and give developer access point and credentials
+- Developer manage a Config Map for all env variables of a app
+- After Semaphore CI succeed, It notify OpenShift pull source code, use Build.Dockerfile, Dockerfile to build image, deploy the new image, expose a url for Developer/QA to test the app
+- Developer/QA tests
+
+The benefit of this workflow is that Developer can create/add any app they want without writing any shell scripts or QA involved. they can for example create a new user testable for their own testing branch.
+
+### Production Workflow
+
+Production deployed docker images need to be tagged with version numbers like 1.0.1, and each version number should attach a changelog to describe changes for track-ability.
+
+- Developer use script to pull image built by development OpenShift, tag it with version numbers, and push it to registry.theplant-dev.com
+- Developer might update production config maps use `kubectl delete configmap myapp && kubectl create configmap myapp --from-env-file=myapp.env`
+- Developer use `kubectl set image deployment/myapp myapp=myapp:1.91` to deploy production
+
+Think about a way to automate this
+
